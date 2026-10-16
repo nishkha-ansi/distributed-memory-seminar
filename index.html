@@ -1,0 +1,1272 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distributed Memory Parallel Programming | SRM KTR</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@600;700;800;900&family=Playfair+Display:wght@700;800;900&family=Gelasio:wght@500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --ink: #21183d;
+  --ink2: #49355f;
+  --pink: #e9b9d9;
+  --mauve: #c477b0;
+  --purple: #7656a5;
+  --lavender: #d9c9ee;
+  --white: #fffaff;
+  --green: #087443;
+  --red: #a82049;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 145px;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Gelasio", Georgia, serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.8;
+  background: linear-gradient(125deg,#f3d9e9,#e8d6f0,#d5c3e8,#e5d0ed,#f3dceb);
+  background-attachment: fixed;
+}
+
+button { cursor: pointer; }
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  opacity: .30;
+  background-image:
+    radial-gradient(circle,#fff 1.5px,transparent 2.5px),
+    radial-gradient(circle,#f7e69b 1.4px,transparent 2.6px);
+  background-size: 79px 83px,113px 127px;
+  animation: glitter 18s linear infinite;
+}
+
+@keyframes glitter {
+  to { background-position: 79px 83px,113px 127px; }
+}
+
+@keyframes float {
+  0%,100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+@keyframes shimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+/* HEADINGS */
+h1,h2,h3,.kicker,.brand-name,nav a,.pill,button,.codehead,.score,.node strong {
+  font-family: "Playfair Display", Georgia, serif;
+  font-weight: 900;
+  color: var(--ink);
+}
+
+h1 {
+  max-width: 1200px;
+  margin: 24px auto;
+  font-size: clamp(3rem,7vw,5.7rem);
+  line-height: 1.12;
+  letter-spacing: -1px;
+  text-shadow: 3px 4px 0 #fffaff;
+}
+
+h2 {
+  margin: 0 0 20px;
+  font-size: clamp(2.2rem,4vw,3.3rem);
+  line-height: 1.25;
+}
+
+h3 {
+  font-size: clamp(1.4rem,2.2vw,1.8rem);
+  line-height: 1.35;
+}
+
+p,.subtitle,.lead,.card p,.notice,.question,.option,footer p {
+  font-family: "Gelasio", Georgia, serif;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* HEADER */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: linear-gradient(100deg,#e9b9d9f5,#d8b9e7f5,#c9b7e8f5,#e8c8e5f5);
+  border-bottom: 3px solid white;
+  box-shadow: 0 5px 18px #49346f20;
+}
+
+.nav {
+  width: 96%;
+  max-width: 1500px;
+  min-height: 105px;
+  margin: auto;
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  max-width: 52%;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.logo {
+  display: block;
+  width: 100px;
+  height: 100px;
+  flex: 0 0 100px;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid white;
+  padding: 2px;
+  box-shadow: 0 4px 12px #49346f25;
+}
+
+.logo-fallback {
+  width: 100px;
+  height: 100px;
+  flex: 0 0 100px;
+  border-radius: 50%;
+  background: white;
+  color: #173d8f;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font: 900 27px Georgia,serif;
+  border: 3px solid #d7b84a;
+}
+
+.brand-name {
+  display: block;
+  max-width: 370px;
+  font-size: 16px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 15px;
+}
+
+nav a {
+  font-size: 15px;
+  text-decoration: none;
+}
+
+nav a:hover {
+  color: #8c317a;
+  text-decoration: underline;
+}
+
+/* HERO */
+.wrap {
+  width: min(1250px,94%);
+  margin: auto;
+}
+
+.hero {
+  text-align: center;
+  padding: 65px 0 55px;
+  background: linear-gradient(120deg,#e9b9d9,#d6b9e7,#c9b8e8,#e5c8e8,#eac7df);
+  background-size: 220% 220%;
+  animation: shimmer 16s ease-in-out infinite alternate;
+  border-bottom: 4px solid white;
+}
+
+.kicker {
+  color: #49346f;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 1.05rem;
+}
+
+.subtitle {
+  max-width: 950px;
+  margin: auto;
+  font-size: clamp(1.2rem,2vw,1.5rem);
+  line-height: 1.7;
+}
+
+.pills {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.pill {
+  background: #fffaffed;
+  border: 2px solid white;
+  border-radius: 999px;
+  padding: 10px 17px;
+  font-size: .95rem;
+  box-shadow: 0 4px 12px #49346f16;
+}
+
+.moving-objects {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 22px;
+  margin: 35px auto 0;
+}
+
+.moving-object {
+  width: 78px;
+  height: 78px;
+  display: grid;
+  place-items: center;
+  font-size: 2.6rem;
+  background: #fffaffdc;
+  border: 3px solid white;
+  border-radius: 23px;
+  box-shadow: 0 5px 16px #49346f18;
+  animation: float 3.5s ease-in-out infinite;
+}
+
+.moving-object:nth-child(2) { animation-delay: -.7s; }
+.moving-object:nth-child(3) { animation-delay: -1.4s; }
+.moving-object:nth-child(4) { animation-delay: -2.1s; }
+.moving-object:nth-child(5) { animation-delay: -2.8s; }
+
+/* CONTENT SECTIONS */
+section.content {
+  padding: 62px 0;
+  border-bottom: 3px solid white;
+  overflow: hidden;
+}
+
+section.content:nth-of-type(odd) {
+  background: linear-gradient(120deg,#f7e3f0,#efd9ed,#e4d5f2);
+}
+
+section.content:nth-of-type(even) {
+  background: linear-gradient(120deg,#e8d6ef,#dfd2f1,#f3dced);
+}
+
+.lead {
+  max-width: 1050px;
+  margin: 0 0 28px;
+  font-size: 1.2rem;
+  line-height: 1.8;
+}
+
+/* CENTRED CARD ROWS */
+.grid,.examples {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 22px;
+}
+
+.grid > .card,.examples > .card {
+  flex: 1 1 300px;
+  max-width: 390px;
+  min-width: 0;
+}
+
+.card {
+  background: #fffaffef;
+  border: 2px solid white;
+  border-top: 6px solid #c477b0;
+  border-radius: 22px;
+  padding: 25px;
+  box-shadow: 0 8px 24px #49346f15;
+  transition: transform .22s,box-shadow .22s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 13px 30px #49346f22;
+}
+
+.card:nth-child(3n+2) { border-top-color: #a77cc4; }
+.card:nth-child(3n+3) { border-top-color: #8a70bb; }
+
+.card h3 {
+  color: #392650;
+  margin: 12px 0;
+}
+
+.card p {
+  margin: 0 0 10px;
+  font-size: 1.08rem;
+  line-height: 1.8;
+}
+
+.icon {
+  display: inline-block;
+  font-size: 2.8rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.highlight {
+  margin-top: 22px;
+  padding: 22px;
+  background: linear-gradient(100deg,#f2d5e8,#e2d4f2,#f7e5f0);
+  border: 3px solid white;
+  border-radius: 17px;
+  font-size: 1.1rem;
+}
+
+/* ALL THREE STEPS CENTRED */
+.steps-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: center;
+  gap: 22px;
+}
+
+.steps-grid > .card {
+  flex: 1 1 300px;
+  max-width: 390px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.steps-grid .icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.steps-grid h3,.steps-grid p { text-align: center; }
+
+/* ARCHITECTURE */
+.architecture {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: center;
+  gap: 15px;
+  margin: 28px 0;
+}
+
+.node {
+  flex: 1 1 200px;
+  max-width: 290px;
+  text-align: center;
+  padding: 23px 12px;
+  background: linear-gradient(135deg,#f0d4e9,#e0d2f1);
+  border: 3px solid white;
+  border-radius: 18px;
+}
+
+.node strong {
+  display: block;
+  font-size: 1.2rem;
+}
+
+.node small {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.flow {
+  text-align: center;
+  margin: 25px 0;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #392650;
+}
+
+/* APPLICATIONS */
+.examples > .card { text-align: center; }
+
+.illustration {
+  min-height: 135px;
+  display: grid;
+  place-items: center;
+  font-size: 4.2rem;
+  border-radius: 16px;
+  border: 2px solid white;
+  background: linear-gradient(135deg,#f4d5eb,#e3d1f1,#d2c3e9);
+  margin-bottom: 17px;
+}
+
+.illustration span { animation: float 3s ease-in-out infinite; }
+
+/* CODE DEMOS */
+.demo-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 22px 0;
+}
+
+button {
+  padding: 13px 18px;
+  background: linear-gradient(100deg,#f0d5e9,#d9c9ee);
+  border: 2px solid white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px #49346f15;
+  font-size: 1rem;
+}
+
+button:hover { filter: brightness(.97); }
+button.primary { background: linear-gradient(100deg,#e3c7ec,#d2c3f0); }
+button:disabled { opacity: .6; cursor: wait; }
+
+.codebox {
+  overflow: hidden;
+  background: #fffaff;
+  border: 3px solid white;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px #49346f18;
+}
+
+.codehead {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px 20px;
+  background: linear-gradient(100deg,#e9c5df,#d8c6ed,#f0d7e9);
+}
+
+.codebody {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+pre,.output {
+  min-height: 260px;
+  max-height: 520px;
+  overflow: auto;
+  margin: 0;
+  padding: 22px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 1rem/1.75 Consolas,"Courier New",monospace;
+}
+
+pre {
+  color: #21183d;
+  background: #fffaff;
+  border-right: 2px solid #e0d0eb;
+}
+
+.output {
+  color: #3c2858;
+  background: #f8eff9;
+}
+
+.output.placeholder {
+  color: #49355f;
+  font: 1.08rem/1.7 "Gelasio",Georgia,serif;
+  font-weight: 600;
+}
+
+.notice {
+  margin-top: 20px;
+  padding: 21px;
+  border-left: 7px solid #7656a5;
+  border-radius: 0 16px 16px 0;
+  background: linear-gradient(100deg,#f4e4f1,#e7daf3,#f9e9f4);
+  font-size: 1.08rem;
+}
+
+/* QUIZ */
+.quiz {
+  max-width: 1000px;
+  margin: auto;
+}
+
+.question {
+  margin: 20px 0;
+  padding: 25px;
+  background: #fffaffef;
+  border: 3px solid white;
+  border-radius: 19px;
+  box-shadow: 0 7px 20px #49346f15;
+}
+
+.question h3 {
+  margin: 0 0 16px;
+  font-size: 1.3rem;
+  color: #302044;
+}
+
+.option {
+  display: block;
+  width: 100%;
+  margin: 9px 0;
+  padding: 14px 16px;
+  text-align: left;
+  background: #f6edf8;
+  border: 2px solid #d9c6e4;
+  border-radius: 12px;
+  font-size: 1.02rem;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.option:hover { background: #eddcf0; }
+
+.option.correct {
+  background: #d9f4e4;
+  border-color: #16824c;
+  color: #075b35;
+}
+
+.option.wrong {
+  background: #ffe1e9;
+  border-color: #ba2d58;
+  color: #8c1d3e;
+}
+
+.feedback {
+  min-height: 1.5em;
+  margin-top: 12px;
+  font-size: 1.08rem;
+  font-weight: 900;
+}
+
+.good { color: var(--green); }
+.bad { color: var(--red); }
+
+.score {
+  font-size: 1.3rem;
+  margin: 23px 0;
+}
+
+.celebration {
+  display: none;
+  padding: 27px;
+  margin: 22px 0;
+  border: 3px solid white;
+  border-radius: 19px;
+  text-align: center;
+  font-size: 1.3rem;
+  background: linear-gradient(110deg,#e8c6e2,#d9c8ee,#f3d9e9);
+}
+
+.celebration.show { display: block; }
+
+.celebration strong {
+  display: block;
+  font-family: "Great Vibes",cursive;
+  font-size: 2.8rem;
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 50px 0;
+  background: linear-gradient(110deg,#e9b9d9,#d8b9e7,#c9b8e8,#e5c8e8);
+  border-top: 4px solid white;
+}
+
+footer h2 {
+  font-family: "Great Vibes",cursive;
+  font-size: clamp(3.5rem,7vw,5.5rem);
+  margin-bottom: 8px;
+}
+
+footer p {
+  margin: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+footer .guide {
+  font-size: 1.35rem;
+  color: #49346f;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1050px) {
+  .nav {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .brand { max-width: 100%; }
+  nav { justify-content: flex-start; }
+  .codebody { grid-template-columns: 1fr; }
+
+  pre {
+    border-right: 0;
+    border-bottom: 2px solid #e0d0eb;
+  }
+}
+
+@media (max-width: 620px) {
+  body { font-size: 18px; }
+
+  .nav { gap: 12px; }
+
+  .brand {
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  .logo,.logo-fallback {
+    width: 68px;
+    height: 68px;
+    flex-basis: 68px;
+  }
+
+  .brand-name { max-width: 240px; }
+  .hero { padding: 48px 0; }
+
+  .moving-object {
+    width: 62px;
+    height: 62px;
+    font-size: 2rem;
+  }
+
+  .grid > .card,.examples > .card,.steps-grid > .card {
+    flex: 1 1 100%;
+    max-width: 460px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .architecture .node { flex: 1 1 130px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="#top" aria-label="Back to top">
+      <img
+        class="logo"
+        src="./srm-logo.png"
+        alt="SRM Institute of Science and Technology logo"
+        onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex';"
+      >
+      <div class="logo-fallback" id="logoFallback">SRM</div>
+
+      <span class="brand-name">
+        SRM INSTITUTE OF SCIENCE AND TECHNOLOGY<br>
+        KATTANKULATHUR
+      </span>
+    </a>
+
+    <nav>
+      <a href="#overview">Overview</a>
+      <a href="#memory">Memory Models</a>
+      <a href="#patterns">Patterns</a>
+      <a href="#examples">Applications</a>
+      <a href="#demo">Python Demo</a>
+      <a href="#quiz">Quiz</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap">
+      <div class="kicker">Advanced Programming Practice · Unit IV</div>
+      <h1>Distributed Memory<br>Parallel Programming</h1>
+
+      <p class="subtitle">
+        How separate processes work on different parts of a problem,
+        exchange messages, and combine their results.
+      </p>
+
+      <div class="pills">
+        <span class="pill">Nishkha Ansi P</span>
+        <span class="pill">REG NO: RA2511026010307</span>
+        <span class="pill">B.Tech CSE (AIML)</span>
+        <span class="pill">AE1 · Year 2 · Semester 3</span>
+      </div>
+
+      <div class="moving-objects">
+        <div class="moving-object" title="Computer">💻</div>
+        <div class="moving-object" title="Worker process">⚙️</div>
+        <div class="moving-object" title="Message passing">📨</div>
+        <div class="moving-object" title="Data">🗃️</div>
+        <div class="moving-object" title="Results">📊</div>
+      </div>
+    </div>
+  </div>
+
+  <section class="content" id="overview">
+    <div class="wrap">
+      <h2>01 · What Is Distributed-Memory Parallel Programming?</h2>
+      <p class="lead">
+        Distributed-memory parallel programming divides a large task among
+        separate processes or computers. Each process has its own private
+        memory. Processes communicate by sending and receiving messages.
+      </p>
+
+      <div class="steps-grid">
+        <article class="card">
+          <span class="icon">🧩</span>
+          <h3>Step 1: Divide the Task</h3>
+          <p>A large problem is split into smaller tasks that can be handled separately.</p>
+        </article>
+
+        <article class="card">
+          <span class="icon">⚙️</span>
+          <h3>Step 2: Process the Data</h3>
+          <p>Each worker handles its own piece of data using its own memory.</p>
+        </article>
+
+        <article class="card">
+          <span class="icon">📨</span>
+          <h3>Step 3: Exchange Results</h3>
+          <p>Workers send their results to another process or to a coordinator.</p>
+        </article>
+      </div>
+
+      <div class="highlight">
+        <strong>Easy example:</strong> A teacher divides 300 papers among six
+        helpers. Each helper checks a group. At the end, all marks are collected.
+        The helpers represent workers in a parallel program.
+      </div>
+    </div>
+  </section>
+
+  <section class="content" id="memory">
+    <div class="wrap">
+      <h2>02 · Shared Memory vs Distributed Memory</h2>
+      <p class="lead">The key difference is how each worker accesses data.</p>
+
+      <div class="grid">
+        <article class="card">
+          <span class="icon">🧠</span>
+          <h3>Shared Memory</h3>
+          <p>Threads can access the same memory area. If two threads change
+          the same data, synchronisation may be needed.</p>
+          <p><strong>Example:</strong> Threads update a shared counter.</p>
+        </article>
+
+        <article class="card">
+          <span class="icon">🌐</span>
+          <h3>Distributed Memory</h3>
+          <p>Each process has its own memory. Processes exchange information
+          through messages rather than directly accessing another process's memory.</p>
+          <p><strong>Example:</strong> Computers calculate different parts of a weather model.</p>
+        </article>
+
+        <article class="card">
+          <span class="icon">📨</span>
+          <h3>Message Passing</h3>
+          <p>Processes send and receive data to coordinate their work and share results.</p>
+        </article>
+      </div>
+
+      <div class="architecture">
+        <div class="node"><strong>Coordinator</strong><small>Divides the task</small></div>
+        <div class="node"><strong>Worker A</strong><small>Private memory</small></div>
+        <div class="node"><strong>Worker B</strong><small>Private memory</small></div>
+        <div class="node"><strong>Final Result</strong><small>Combines answers</small></div>
+      </div>
+
+      <div class="flow">
+        Input → Split Task → Process Data → Send Results → Combine Output
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Processes</h3>
+          <p>Independent running units with separate memory spaces.</p>
+        </article>
+
+        <article class="card">
+          <h3>MPI</h3>
+          <p>Message Passing Interface is widely used for communication between
+          processes in parallel computing.</p>
+        </article>
+
+        <article class="card">
+          <h3>Scalability</h3>
+          <p>A parallel system can use more workers to tackle larger tasks,
+          although communication has a cost.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="content" id="patterns">
+    <div class="wrap">
+      <h2>03 · Parallel Programming Patterns</h2>
+      <p class="lead">Patterns are common ways to organise parallel work.</p>
+
+      <div class="grid">
+        <article class="card">
+          <span class="icon">✂️</span>
+          <h3>Divide and Conquer</h3>
+          <p>Split a large problem into smaller problems, solve them, and combine the answers.</p>
+        </article>
+
+        <article class="card">
+          <span class="icon">🏭</span>
+          <h3>Work Pool</h3>
+          <p>A coordinator assigns tasks to workers that are ready to process them.</p>
+        </article>
+
+        <article class="card">
+          <span class="icon">🚦</span>
+          <h3>Pipeline</h3>
+          <p>Data moves through several stages, like a production line.</p>
+        </article>
+
+        <article class="card">
+          <span class="icon">📦</span>
+          <h3>Data Decomposition</h3>
+          <p>Split input data into chunks and perform similar work on each chunk.</p>
+        </article>
+
+        <article class="card">
+          <span class="icon">🛠️</span>
+          <h3>Functional Decomposition</h3>
+          <p>Different workers perform different functions or stages of a task.</p>
+        </article>
+
+        <article class="card">
+          <span class="icon">🔁</span>
+          <h3>Phased Computation</h3>
+          <p>Workers complete a phase, exchange information, and continue to the next phase.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="content" id="examples">
+    <div class="wrap">
+      <h2>04 · Real-Life Applications</h2>
+      <p class="lead">Parallel computing helps solve problems that require a lot of computation.</p>
+
+      <div class="examples">
+        <article class="card">
+          <div class="illustration"><span>🌦️</span></div>
+          <h3>Weather Forecasting</h3>
+          <p>Different processors calculate conditions for different regions of a weather model.</p>
+        </article>
+
+        <article class="card">
+          <div class="illustration"><span>🎬</span></div>
+          <h3>Movie Rendering</h3>
+          <p>Different frames or image sections can be assigned to separate workers.</p>
+        </article>
+
+        <article class="card">
+          <div class="illustration"><span>📊</span></div>
+          <h3>Big-Data Analysis</h3>
+          <p>Large datasets can be split into chunks, analysed, and combined.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="content" id="sync">
+    <div class="wrap">
+      <h2>05 · Race Conditions and Synchronisation</h2>
+      <p class="lead">
+        A race condition happens when the result depends on the timing or order
+        of tasks accessing shared data.
+      </p>
+
+      <div class="grid">
+        <article class="card">
+          <span class="icon">⚠️</span>
+          <h3>Race Condition</h3>
+          <p>Two tasks may read the same old value and overwrite each other's update.</p>
+        </article>
+
+        <article class="card">
+          <span class="icon">🔐</span>
+          <h3>Lock</h3>
+          <p>A lock controls access to a critical section so only one thread at a time can enter.</p>
+        </article>
+
+        <article class="card">
+          <span class="icon">🚦</span>
+          <h3>Semaphore</h3>
+          <p>A semaphore controls how many tasks can access a resource at the same time.</p>
+        </article>
+
+        <article class="card">
+          <span class="icon">🔒</span>
+          <h3>RLock</h3>
+          <p>A re-entrant lock allows the same thread to acquire the lock again.</p>
+        </article>
+
+        <article class="card">
+          <span class="icon">📬</span>
+          <h3>Queue</h3>
+          <p>A queue passes items between tasks in an organised way.</p>
+        </article>
+
+        <article class="card">
+          <span class="icon">🔔</span>
+          <h3>Event</h3>
+          <p>An event signals that something has happened and another task can respond.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="content" id="demo">
+    <div class="wrap">
+      <h2>06 · Python Demonstrations</h2>
+      <p class="lead">Choose a demo and click Run. Output appears only after execution.</p>
+
+      <div class="demo-buttons">
+        <button onclick="selectDemo('split')">Demo 1 · Split Work</button>
+        <button onclick="selectDemo('lock')">Demo 2 · Lock Concept</button>
+        <button onclick="selectDemo('race')">Demo 3 · Race Condition</button>
+      </div>
+
+      <div class="codebox">
+        <div class="codehead">
+          <span id="demoTitle">Demo 1 · Split Work</span>
+          <span id="runStatus">Waiting to run</span>
+        </div>
+
+        <div class="codebody">
+          <pre id="pycode">numbers = [2, 3, 4, 5, 6, 7]
+chunks = [numbers[0:2], numbers[2:4], numbers[4:6]]
+results = []
+
+print("Main task:", numbers)
+
+for worker, chunk in enumerate(chunks, start=1):
+    squares = [n * n for n in chunk]
+    print(f"Worker {worker}: {chunk} -> {squares}")
+    results.extend(squares)
+
+print("Combined result:", results)</pre>
+
+          <div class="output placeholder" id="output">Output will appear here after you click Run selected code.</div>
+        </div>
+      </div>
+
+      <div class="demo-buttons">
+        <button class="primary" id="runButton" onclick="runPython()">▶ Run Selected Code</button>
+        <button onclick="resetOutput()">Reset Output</button>
+      </div>
+
+      <div class="notice">
+        <strong>Important:</strong> These examples run Python in the browser using
+        Pyodide. They illustrate concepts with simple Python logic but do not
+        launch real parallel processes or threads. For actual
+        <code>multiprocessing</code> or MPI programs, use Python in VS Code or
+        a suitable MPI environment.
+      </div>
+    </div>
+  </section>
+
+  <section class="content" id="quiz">
+    <div class="wrap quiz">
+      <h2>07 · Quick Quiz for Friends</h2>
+      <p class="lead">Five questions! Green means correct; red means incorrect.</p>
+
+      <div class="question" data-answer="b">
+        <h3>Q1. How do processes in distributed memory usually exchange data?</h3>
+        <button class="option" data-choice="a" onclick="answer(this)">A. By directly reading another process's private variables</button>
+        <button class="option" data-choice="b" onclick="answer(this)">B. By sending and receiving messages</button>
+        <button class="option" data-choice="c" onclick="answer(this)">C. By removing their memory</button>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="question" data-answer="c">
+        <h3>Q2. What is data decomposition?</h3>
+        <button class="option" data-choice="a" onclick="answer(this)">A. Deleting the input data</button>
+        <button class="option" data-choice="b" onclick="answer(this)">B. Giving every worker the same final result</button>
+        <button class="option" data-choice="c" onclick="answer(this)">C. Splitting input data into chunks for processing</button>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="question" data-answer="a">
+        <h3>Q3. What is a race condition?</h3>
+        <button class="option" data-choice="a" onclick="answer(this)">A. A result that depends on task timing or order</button>
+        <button class="option" data-choice="b" onclick="answer(this)">B. A program that runs on a racing car</button>
+        <button class="option" data-choice="c" onclick="answer(this)">C. A guarantee that tasks run one by one</button>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="question" data-answer="b">
+        <h3>Q4. Which Python module is commonly used to create threads?</h3>
+        <button class="option" data-choice="a" onclick="answer(this)">A. math</button>
+        <button class="option" data-choice="b" onclick="answer(this)">B. threading</button>
+        <button class="option" data-choice="c" onclick="answer(this)">C. calendar</button>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="question" data-answer="c">
+        <h3>Q5. What is the main purpose of a lock?</h3>
+        <button class="option" data-choice="a" onclick="answer(this)">A. To delete shared data</button>
+        <button class="option" data-choice="b" onclick="answer(this)">B. To make all variables public</button>
+        <button class="option" data-choice="c" onclick="answer(this)">C. To control access to a protected section</button>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="score" id="score">Correct answers: 0 / 5</div>
+      <div class="celebration" id="celebration"></div>
+      <button onclick="resetQuiz()">Try Quiz Again</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <h2>Thank You!</h2>
+    <p class="guide">Under the guidance of Dr. Sheeba Rachel Mam</p>
+    <p>Course: Advanced Programming Practice · Unit IV</p>
+    <p>SRM Institute of Science and Technology, Kattankulathur</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js"></script>
+
+<script>
+const demos = {
+  split: {
+    title: "Demo 1 · Split Work",
+    code: `numbers = [2, 3, 4, 5, 6, 7]
+chunks = [numbers[0:2], numbers[2:4], numbers[4:6]]
+results = []
+
+print("Main task:", numbers)
+
+for worker, chunk in enumerate(chunks, start=1):
+    squares = [n * n for n in chunk]
+    print(f"Worker {worker}: {chunk} -> {squares}")
+    results.extend(squares)
+
+print("Combined result:", results)`
+  },
+
+  lock: {
+    title: "Demo 2 · Lock Concept",
+    code: `counter = 0
+print("Counter before work:", counter)
+
+for worker in range(1, 4):
+    print(f"Worker {worker} enters the protected section")
+    counter += 1
+    print("Counter is now:", counter)
+    print(f"Worker {worker} leaves the section")
+
+print("Final counter:", counter)
+print("This illustrates the lock idea; it is not a real thread lock.")`
+  },
+
+  race: {
+    title: "Demo 3 · Race Condition",
+    code: `counter = 0
+print("Starting counter:", counter)
+
+worker_a_read = counter
+worker_b_read = counter
+
+print("Worker A reads:", worker_a_read)
+print("Worker B reads:", worker_b_read)
+
+counter = worker_a_read + 1
+print("Worker A writes:", counter)
+
+counter = worker_b_read + 1
+print("Worker B writes:", counter)
+
+print("Final counter:", counter)
+print("Expected if both updates were kept: 2")`
+  }
+};
+
+let pyodide = null;
+let loadingPromise = null;
+
+function selectDemo(key) {
+  document.getElementById("demoTitle").textContent = demos[key].title;
+  document.getElementById("pycode").textContent = demos[key].code;
+  resetOutput();
+}
+
+async function getPythonRuntime() {
+  if (pyodide) return pyodide;
+  if (loadingPromise) return loadingPromise;
+
+  loadingPromise = (async () => {
+    if (typeof loadPyodide !== "function") {
+      throw new Error("Python runtime could not load. Check your internet connection.");
+    }
+
+    pyodide = await loadPyodide();
+    return pyodide;
+  })();
+
+  return loadingPromise;
+}
+
+async function runPython() {
+  const button = document.getElementById("runButton");
+  const output = document.getElementById("output");
+  const status = document.getElementById("runStatus");
+
+  button.disabled = true;
+  button.textContent = "Loading / Running...";
+  output.classList.remove("placeholder");
+  output.textContent = "";
+  status.textContent = "Executing";
+
+  try {
+    const py = await getPythonRuntime();
+
+    py.runPython(`
+import sys
+import io
+_capture = io.StringIO()
+sys.stdout = _capture
+sys.stderr = _capture
+`);
+
+    await py.runPythonAsync(document.getElementById("pycode").textContent);
+
+    output.textContent =
+      py.runPython("_capture.getvalue()") || "Code ran successfully.";
+
+    status.textContent = "Executed successfully";
+  } catch (error) {
+    output.textContent = "Python error:\n" + error.message;
+    status.textContent = "Could not run";
+  } finally {
+    if (pyodide) {
+      try {
+        pyodide.runPython(
+          "sys.stdout = sys.__stdout__; sys.stderr = sys.__stderr__"
+        );
+      } catch (error) {}
+    }
+
+    button.disabled = false;
+    button.textContent = "▶ Run Selected Code";
+  }
+}
+
+function resetOutput() {
+  const output = document.getElementById("output");
+  output.textContent = "Output will appear here after you click Run selected code.";
+  output.classList.add("placeholder");
+  document.getElementById("runStatus").textContent = "Waiting to run";
+}
+
+function answer(button) {
+  const question = button.closest(".question");
+  if (question.dataset.done === "yes") return;
+
+  question.dataset.done = "yes";
+
+  const correctChoice = question.dataset.answer;
+  const isCorrect = button.dataset.choice === correctChoice;
+
+  question.querySelectorAll(".option").forEach(option => {
+    option.disabled = true;
+
+    if (option.dataset.choice === correctChoice) {
+      option.classList.add("correct");
+    }
+  });
+
+  const feedback = question.querySelector(".feedback");
+
+  if (isCorrect) {
+    feedback.textContent = "🎉 Correct! Excellent answer! Keep shining!";
+    feedback.className = "feedback good";
+  } else {
+    button.classList.add("wrong");
+    feedback.textContent = "Not quite! The correct answer is highlighted in green.";
+    feedback.className = "feedback bad";
+  }
+
+  updateScore();
+}
+
+function updateScore() {
+  let correct = 0;
+  let answered = 0;
+
+  document.querySelectorAll(".question").forEach(question => {
+    if (question.dataset.done === "yes") {
+      answered++;
+      if (question.querySelector(".feedback").classList.contains("good")) correct++;
+    }
+  });
+
+  document.getElementById("score").textContent = "Correct answers: " + correct + " / 5";
+
+  const celebration = document.getElementById("celebration");
+  celebration.classList.remove("show");
+
+  if (answered === 5 && correct === 5) {
+    celebration.innerHTML = "<strong>Wonderful!</strong>🎉 PERFECT SCORE! ALL 5 CORRECT! 🎉";
+    celebration.classList.add("show");
+  } else if (answered === 5) {
+    celebration.innerHTML = "<strong>Keep going!</strong>You scored " + correct + " out of 5. Every attempt makes you better!";
+    celebration.classList.add("show");
+  }
+}
+
+function resetQuiz() {
+  document.querySelectorAll(".question").forEach(question => {
+    delete question.dataset.done;
+
+    question.querySelectorAll(".option").forEach(option => {
+      option.disabled = false;
+      option.classList.remove("correct","wrong");
+    });
+
+    const feedback = question.querySelector(".feedback");
+    feedback.textContent = "";
+    feedback.className = "feedback";
+  });
+
+  document.getElementById("score").textContent = "Correct answers: 0 / 5";
+  document.getElementById("celebration").classList.remove("show");
+}
+</script>
+</body>
+</html>
